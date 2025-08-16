@@ -16,6 +16,15 @@
   <h2>Add Your Own Quote</h2>
   <div id="quoteFormContainer"></div>
 
+  <!-- JSON Import/Export controls -->
+  <h2>Manage Quotes Data</h2>
+  <button onclick="exportToJsonFile()">Export Quotes (JSON)</button>
+  <input type="file" id="importFile" accept=".json" onchange="importFromJsonFile(event)" />
+
+  <!-- Display last viewed category from session storage -->
+  <div id="sessionInfo"></div>
+
+
   <script src="script.js"></script>
 </body>
 </html>

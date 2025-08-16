@@ -28,6 +28,9 @@
   <button onclick="exportToJsonFile()">Export Quotes (JSON)</button>
   <input type="file" id="importFile" accept=".json" onchange="importFromJsonFile(event)" />
 
+  <div id="syncStatus" style="margin-top: 10px; color: blue;">Sync Status: Idle</div>
+    <button onclick="manualSync()" style="margin-top: 5px;">Sync Now</button>
+
   <!-- Display last viewed category from session storage -->
   <div id="sessionInfo"></div>
 

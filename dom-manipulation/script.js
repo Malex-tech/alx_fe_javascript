@@ -10,6 +10,9 @@ const quoteDisplay = document.getElementById("quoteDisplay");
 const newQuoteButton = document.getElementById("newQuote");
 const sessionInfo = document.getElementById("sessionInfo");
 const categoryFilter = document.getElementById("categoryFilter");
+const syncStatus = document.getElementById("syncStatus");
+const SERVER_URL = "https://jsonplaceholder.typicode.com/posts"; // Mock API
+
 
 // --- Storage Functions ---
 function saveQuotes() {
@@ -200,3 +203,79 @@ populateCategories();
 newQuoteButton.addEventListener("click", filterQuotes);
 filterQuotes(); // Start with filter applied
 displaySessionInfo();
+
+// --- Utility to show sync messages ---
+function notifyUser(message, color = "blue") {
+  syncStatus.textContent = `Sync Status: ${message}`;
+  syncStatus.style.color = color;
+}
+
+// --- Simulate Fetch from Server ---
+async function fetchQuotesFromServer() {
+  try {
+    notifyUser("Fetching from server...");
+    const response = await fetch(SERVER_URL);
+    const data = await response.json();
+
+    // Simulate server quotes: take only first 5 and format them
+    const serverQuotes = data.slice(0, 5).map(item => ({
+      text: item.title,
+      category: "Server"
+    }));
+
+    notifyUser("Data fetched successfully.", "green");
+    return serverQuotes;
+
+  } catch (error) {
+    notifyUser("Fetch failed!", "red");
+    console.error("Error fetching server data:", error);
+    return [];
+  }
+}
+
+// --- Merge Local and Server Data ---
+function mergeQuotes(serverQuotes) {
+  let updated = false;
+
+  serverQuotes.forEach(serverQuote => {
+    // Check if a similar quote exists locally
+    const localIndex = quotes.findIndex(q => q.text === serverQuote.text);
+    if (localIndex === -1) {
+      // New quote from server -> add locally
+      quotes.push(serverQuote);
+      updated = true;
+    } else {
+      // If conflict (category mismatch), server wins
+      if (quotes[localIndex].category !== serverQuote.category) {
+        quotes[localIndex] = serverQuote;
+        updated = true;
+      }
+    }
+  });
+
+  if (updated) {
+    saveQuotes();
+    populateCategories();
+    filterQuotes();
+    notifyUser("Data merged with server.", "green");
+    alert("Quotes updated from server (server data took precedence).");
+  } else {
+    notifyUser("No changes from server.", "green");
+  }
+}
+
+// --- Sync Logic ---
+async function syncQuotesWithServer() {
+  const serverQuotes = await fetchQuotesFromServer();
+  if (serverQuotes.length > 0) {
+    mergeQuotes(serverQuotes);
+  }
+}
+
+// --- Manual Sync Button ---
+function manualSync() {
+  syncQuotesWithServer();
+}
+
+// --- Auto Sync Every 30 Seconds ---
+setInterval(syncQuotesWithServer, 30000);

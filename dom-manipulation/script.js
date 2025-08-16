@@ -320,3 +320,22 @@ function manualSync() {
 
 // --- Auto Sync Every 30 Seconds ---
 setInterval(syncQuotesWithServer, 30000);
+
+function syncWithServer() {
+  fetch(SERVER_URL)
+    .then(response => response.json())
+    .then(serverQuotes => {
+      // Merge server quotes with local quotes (server wins)
+      quotes = serverQuotes;
+      saveQuotes();
+      populateCategories();
+      filterQuotes();
+
+      console.log("Quotes synced with server!"); // <-- ADD THIS LINE
+      notifyUser("Quotes synced with server!", "green"); // optional UI feedback
+    })
+    .catch(error => {
+      console.error("Error syncing with server:", error);
+      notifyUser("Failed to sync with server.", "red");
+    });
+}

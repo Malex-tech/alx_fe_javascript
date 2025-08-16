@@ -129,6 +129,47 @@ function addQuote() {
   filterQuotes(); // Show a quote from current filter
 }
 
+function addQuote() {
+  const text = document.getElementById('newQuoteText').value.trim();
+  const category = document.getElementById('newQuoteCategory').value.trim();
+
+  if (!text || !category) {
+    alert('Please enter both a quote and a category.');
+    return;
+  }
+
+  const newQuote = { text, category };
+  quotes.push(newQuote);
+  saveQuotes();
+  populateCategories();
+  filterQuotes();
+
+  // Clear inputs
+  document.getElementById('newQuoteText').value = '';
+  document.getElementById('newQuoteCategory').value = '';
+
+  alert('Quote added successfully!');
+
+  // --- Post to mock server ---
+  fetch(SERVER_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(newQuote)
+  })
+  .then(response => response.json())
+  .then(data => {
+    console.log('Quote posted to server:', data);
+    notifyUser('Quote synced to server.', 'green');
+  })
+  .catch(error => {
+    console.error('Error posting to server:', error);
+    notifyUser('Failed to sync quote to server.', 'red');
+  });
+}
+
+
 function createAddQuoteForm() {
   const formContainer = document.getElementById("quoteFormContainer");
   
